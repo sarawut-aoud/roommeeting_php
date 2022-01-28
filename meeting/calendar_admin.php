@@ -1,0 +1,375 @@
+<?php
+$fullcalendar_path = "fullcalendar-4.4.2/packages/";
+?>
+<?php
+session_start();
+
+if (!$_SESSION['userid']) {
+  header("Location: frm_login.php");
+} else {
+
+
+  include ('connect.php');
+  $sql ="SELECT * from rooms";
+  $query = mysqli_query($con, $sql)
+  or die ("3.ไม่สามารถประมวลผลคำสั่งได้").mysqli_error;
+  ?>
+  <!DOCTYPE html>
+  <html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>ระบบจองห้องประชุม</title>
+
+    <!-- Custom fonts for this template -->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+    href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+    rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this page -->
+    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+
+    <link href='<?=$fullcalendar_path?>/core/main.css' rel='stylesheet' />
+    <link href='<?=$fullcalendar_path?>/daygrid/main.css' rel='stylesheet' />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css">
+    <!--   ส่วนที่เพิ่มเข้ามาใหม่-->    
+    <link href='<?=$fullcalendar_path?>/timegrid/main.css' rel='stylesheet' />
+    <link href='<?=$fullcalendar_path?>/list/main.css' rel='stylesheet' />
+
+    <script src='<?=$fullcalendar_path?>/core/main.js'></script>
+    <script src='<?=$fullcalendar_path?>/daygrid/main.js'></script>
+    <!--   ส่วนที่เพิ่มเข้ามาใหม่-->
+    <script src='<?=$fullcalendar_path?>/core/locales/th.js'></script>
+    <script src='<?=$fullcalendar_path?>/timegrid/main.js'></script>
+    <script src='<?=$fullcalendar_path?>/interaction/main.js'></script>
+    <script src='<?=$fullcalendar_path?>/list/main.js'></script>    
+
+    <style type="text/css">
+      body {
+        margin: 0 auto;
+        padding: 0;
+        font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+        font-size: 14px;
+      }
+
+      #calendar {
+        max-width: 900px;
+        margin: 0 auto;
+        background-color: #F0FFFF; //เพิ่มแถวนี้เข้าไปเป็นสี BG
+      }
+
+    </style>
+
+
+
+  </head>
+
+  <body id="page-top">
+
+    <?php
+    include "admin_menu.php";
+    include "menu_logout.php";
+    ?>
+    <div class="container">
+      <h4 class="text-center alert  text-dark  p-3" ><font size="6" face="TH SarabunPSK"><b>ปฏิทินการใช้ห้องประชุม โรงพยาบาลเพชรบูรณ์</b></font></h4>
+      <p align="center">
+        <a href="frm_addbooking_admin.php" class="btn btn-info btn-lg "><i class="far fa-calendar-check"></i><font size="5" face="TH SarabunPSK"><b> จองห้องประชุม</b></font></a>
+      </p> 
+      <br> 
+      <div class="container col-lg-12">
+        <div class="row">
+          <div class="col-8">
+           <div class="card">
+            <div class="card-header bg-info text-white" align="center">
+              <i class="far fa-calendar-alt"></i><font size="5" face="TH SarabunPSK"><b>  ปฏิทินการใช้ห้องประชุม โรงพยาบาลเพชรบูรณ์</b></font>
+            </div>
+            <div class="card-body" >
+             <div id='calendar'></div>
+           </div>
+         </div>
+       </div>
+       <div class="col-4">
+        <div class="card">
+          <div class="card-header bg-info text-white" align="center">
+            <i class="fas fa-calendar-check"></i><font size="5" face="TH SarabunPSK"><b> การประชุมประจำวัน </b></font>
+          </div>
+          <div class="card-body" >
+            <div align="center">
+              <button type="button" class="btn btn-success" >    
+                <?php
+                $date_current = date("Y-m-d");
+                function DateThai($strDate)
+                {
+                  $strYear = date("Y",strtotime($strDate))+543;
+                  $strMonth= date("n",strtotime($strDate));
+                  $strDay= date("j",strtotime($strDate));
+                  $strMonthCut = Array("","ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค.");
+                  $strMonthThai=$strMonthCut[$strMonth];
+                  return "$strDay $strMonthThai $strYear";
+                }
+
+                $strDate =date("d-m-Y");
+                echo "วันที่  ".DateThai($strDate);
+                ?>
+              </button>
+            </div>
+
+            <?php
+            $sql1 ="SELECT * from event
+            inner join rooms on event.ro_id = rooms.ro_id where ev_startdate = '$date_current' and ev_status = '3' GROUP by event_id order by ev_starttime";
+            $query1 = mysqli_query($con, $sql1)
+            or die ("3.ไม่สามารถประมวลผลคำสั่งได้").mysqli_error;
+            // echo $strDate;
+            ?>
+
+            <tbody>
+              <?php
+              while ($rs=mysqli_fetch_array($query1)){
+                ?><br><div class="rounded border border-info" style="background-color:<?php echo $rs['ro_color']?>;">
+                  <div align="center">
+                    &nbsp;<font size="5" face="TH SarabunPSK"><b><?php echo  substr("$rs[ev_starttime]",0, 5); ?> </b></font> 
+                    <font size="5" face="TH SarabunPSK"><b> - <?php echo substr("$rs[ev_endtime]",0, 5); ?> </b></font><br>
+                  </div>
+                  &nbsp;&nbsp;&nbsp;<font size="5" face="TH SarabunPSK"><b><?php echo "$rs[ev_title]"; ?></b></font>&nbsp;
+                </div>
+                <?php
+              }
+              ?>
+            </tbody>
+          </div>
+        </div>
+        <br>
+        <div class="card">
+          <div class="card-header bg-info text-white" align="center">
+            <i class="fas fa-fill-drip"></i><font size="5" face="TH SarabunPSK"><b> สีประจำห้องประชุม</b></font>
+          </div>
+          <div class="card-body" >
+           <?php
+           while ($rs=mysqli_fetch_array($query)){
+            ?>
+            <font size="5" face="TH SarabunPSK"><b><?php echo "$rs[ro_name]"; ?></b></font>
+            <div class="rounded border border-info" style="background-color:<?php echo $rs['ro_color']?>;">&nbsp;</div>
+            <?php
+          }
+          ?>
+        </div>
+      </div>
+      <br>
+      <br>
+
+      <!-- Modal -->
+      <div class="modal fade " id="calendarmodal" tabindex="-1" role="dialog"  > <!--กำหนด id ให้กับ modal-->
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="calendarmodal-title">Modal title</h5> <!--กำหนด id ให้ส่วนหัวข้อ-->
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <br>
+            <div class="col-lg-12">
+              <div class="form-group row">
+                <b class="col-lg-6" >สถานที่ประชุม :</b>
+                <div class="col-lg-6">      
+                  <div id="calendarmodal-detail"></div>           
+                </div>
+              </div>
+              <div class="form-group row">
+                <b class="col-lg-6">ชื่อผู้ขอใช้ห้องประชุม:</b>
+                <div class="col-lg-6">      
+                  <div id="calendarmodal-name"></div>           
+                </div>
+              </div>
+              <div class="form-group row">
+                <b class="col-lg-6">นามสกุล:</b>
+                <div class="col-lg-6">      
+                  <div id="calendarmodal-lastname"></div>            
+                </div>
+              </div>
+              <div class="form-group row">
+                <b class="col-lg-6">กลุ่มงาน/ฝ่าย/แผนก :</b>
+                <div class="col-lg-6">      
+                  <div id="calendarmodal-dename"></div>           
+                </div>
+              </div>
+              <div class="form-group row">
+                <b class="col-lg-6">เบอร์ติดต่อสายตรง :</b>
+                <div class="col-lg-6">      
+                  <div id="calendarmodal-dephone"></div>           
+                </div>
+              </div>
+              <div class="form-group row">
+                <b class="col-lg-6">วันที่เริ่ม :</b>
+                <div class="col-lg-6">      
+                  <div id="calendarmodal-start"></div>           
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <b class="col-lg-6">ถึงวันที่ :</b>
+                <div class="col-lg-6">      
+                  <div id="calendarmodal-end"></div>           
+                </div>
+              </div>
+              <div class="form-group row">
+                <b class="col-lg-6">เวลาเริ่ม :</b>
+                <div class="col-lg-6">      
+                  <div id="calendarmodal-starttime"></div>           
+                </div>
+              </div>
+              <div class="form-group row">
+                <b class="col-lg-6">ถึงเวลา :</b>
+                <div class="col-lg-6">      
+                  <div id="calendarmodal-endtime"></div>           
+                </div>
+              </div>
+              <div class="form-group row">
+                <b class="col-lg-6">จำนวนคน :</b>
+                <div class="col-lg-6">      
+                  <div id="calendarmodal-people"></div>            
+                </div>
+              </div>
+              <div class="form-group row">
+                <b class="col-lg-6">รูปแบบการจัดห้อง :</b>
+                <div class="col-lg-6">      
+                  <div id="calendarmodal-style"></div>           
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script  src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+  integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs="
+  crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+  <script type="text/javascript">
+      var calendar; // สร้างตัวแปรไว้ด้านนอก เพื่อให้สามารถอ้างอิงแบบ global ได้
+      $(function(){
+          // กำหนด element ที่จะแสดงปฏิทิน
+          var calendarEl = $("#calendar")[0];
+
+          // กำหนดการตั้งค่า
+          calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: [ 'interaction','dayGrid', 'timeGrid', 'list' ], // plugin ที่เราจะใช้งาน
+            defaultView: 'dayGridMonth', // ค้าเริ่มร้นเมื่อโหลดแสดงปฏิทิน
+            header: {
+              left: 'prev,next today',
+              center : 'title',
+              right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+            },  
+            events: { // เรียกใช้งาน event จาก json ไฟล์ ที่สร้างด้วย php
+              url: 'event02.php?gData=1',
+              error: function() {
+
+              }
+            },              
+            eventLimit: true, // allow "more" link when too many events
+            locale: 'th',    // กำหนดให้แสดงภาษาไทย
+            firstDay: 0, // กำหนดวันแรกในปฏิทินเป็นวันอาทิตย์ 0 เป็นวันจันทร์ 1
+            showNonCurrentDates: false, // แสดงที่ของเดือนอื่นหรือไม่
+            displayEventTime: true,
+            displayEventEnd: true,
+            eventTimeFormat: { // รูปแบบการแสดงของเวลา เช่น '14:30' 
+            hour: '2-digit',
+            minute: '2-digit',
+            meridiem: false
+          }
+        });
+          
+         // แสดงปฏิทิน 
+         calendar.render();  
+
+       });
+     </script> 
+
+     <script type="text/javascript">
+      function viewdetail(id){
+        console.log(id);
+
+      //var id = calendar.getEventById(id); // ดึงข้อมูล ผ่าน api
+      $.ajax({
+        type: "POST",
+        url: "events01.php", 
+        data: {id:id},  
+        success: function(event) { 
+
+
+          $("#calendarmodal").modal('show');
+          
+          $("#calendarmodal-title").html(event.title);
+          $("#calendarmodal-detail").html(event.room);
+          $("#calendarmodal-style").html(event.style);
+                //$("#calendarmodal-detail").html(event.extendedProps.detail);
+                $("#calendarmodal-start").html(event.start);
+                $("#calendarmodal-end").html(event.end);
+                $("#calendarmodal-starttime").html(event.starttime);
+                $("#calendarmodal-endtime").html(event.endtime);
+                $("#calendarmodal-people").html(event.people);
+                $("#calendarmodal-name").html(event.name);
+                $("#calendarmodal-lastname").html(event.lastname);
+                $("#calendarmodal-dename").html(event.dename);
+                $("#calendarmodal-dephone").html(event.dephone);
+                
+
+
+
+
+              }
+            });
+    }
+  </script>
+
+  <br>
+
+  <?php
+  include "foot1.php";
+  ?>
+
+</div>
+<!-- End of Content Wrapper -->
+
+</div>
+<!-- End of Page Wrapper -->
+
+<!-- Scroll to Top Button-->
+<a class="scroll-to-top rounded" href="#page-top">
+  <i class="fas fa-angle-up"></i>
+</a>
+
+<!-- Logout Modal-->
+
+
+<!-- Bootstrap core JavaScript-->
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- Core plugin JavaScript-->
+<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+<!-- Custom scripts for all pages-->
+<script src="js/sb-admin-2.min.js"></script>
+
+</body>
+
+</html>
+<?php } ?>
