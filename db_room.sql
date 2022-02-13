@@ -86,7 +86,7 @@ INSERT INTO `acces` (`ev_id`, `eq_id`) VALUES
 -- Table structure for table `department`
 --
 
-CREATE TABLE `tbl_department` (
+CREATE TABLE `department` (
   `de_id` int(10) NOT NULL,
   `de_name` varchar(50) NOT NULL,
   `de_phone` varchar(10) NOT NULL
@@ -96,7 +96,7 @@ CREATE TABLE `tbl_department` (
 -- Dumping data for table `department`
 --
 
-INSERT INTO `tbl_department` (`de_id`, `de_name`, `de_phone`) VALUES
+INSERT INTO `department` (`de_id`, `de_name`, `de_phone`) VALUES
 (2, 'งานธุรการ', '5967'),
 (3, 'งานคลังพัสดุ', '1705'),
 (4, 'งานวัสดุการแพทย์', '1502'),
@@ -120,7 +120,7 @@ CREATE TABLE `equipment` (
 -- Dumping data for table `equipment`
 --
 
-INSERT INTO `tools` (`eq_id`, `eq_name`, `de_id`) VALUES
+INSERT INTO `equipment` (`eq_id`, `eq_name`, `de_id`) VALUES
 (1, 'เครื่องขยายเสียงพร้อมไมค์', 8),
 (2, 'Projector', 8),
 (3, 'Computer', 8),
@@ -143,7 +143,7 @@ INSERT INTO `tools` (`eq_id`, `eq_name`, `de_id`) VALUES
 -- Table structure for table `event`
 --
 
-CREATE TABLE `tbl_event` (
+CREATE TABLE `event` (
   `ev_id` int(11) NOT NULL,
   `ev_title` varchar(256) NOT NULL,
   `ev_startdate` date NOT NULL,
@@ -167,7 +167,7 @@ CREATE TABLE `tbl_event` (
 -- Dumping data for table `event`
 --
 
-INSERT INTO `tbl_event` (`ev_id`, `ev_title`, `ev_startdate`, `ev_enddate`, `ev_starttime`, `ev_endtime`, `ev_color`, `ev_createdate`, `ev_people`, `ev_status`, `st_id`, `id`, `ro_id`, `ev_url`, `ev_bgcolor`, `ev_repeatday`, `event_id`) VALUES
+INSERT INTO `event` (`ev_id`, `ev_title`, `ev_startdate`, `ev_enddate`, `ev_starttime`, `ev_endtime`, `ev_color`, `ev_createdate`, `ev_people`, `ev_status`, `st_id`, `id`, `ro_id`, `ev_url`, `ev_bgcolor`, `ev_repeatday`, `event_id`) VALUES
 (1, 'พัฒนาคุณภาพงาน', '2021-04-01', '2021-04-02', '09:00:00', '12:00:00', '#FFFFFF', '2021-04-08 16:21:37', 50, 3, 1, 3, 2, '', '#FFFFFF', '', '640400001'),
 (2, 'พัฒนาคุณภาพงาน', '2021-04-02', '2021-04-02', '09:00:00', '12:00:00', '#FFFFFF', '2021-04-08 16:21:37', 50, 3, 1, 3, 2, '', '#FFFFFF', '', '640400001'),
 (3, 'โครงการอบรมป้องกันโควิด-19', '2021-04-05', '2021-04-05', '08:30:00', '15:30:00', '#FFFFFF', '2021-04-08 16:23:54', 200, 3, 3, 3, 3, '', '#FFFFFF', '', '640400002'),
@@ -215,7 +215,7 @@ INSERT INTO `member` (`id`, `username`, `password`, `ntitle`, `firstname`, `last
 -- Table structure for table `rooms`
 --
 
-CREATE TABLE `tbl_rooms` (
+CREATE TABLE `rooms` (
   `ro_id` int(5) NOT NULL,
   `ro_name` varchar(50) NOT NULL,
   `ro_people` int(4) NOT NULL,
@@ -241,7 +241,7 @@ INSERT INTO `rooms` (`ro_id`, `ro_name`, `ro_people`, `ro_color`, `ro_detail`) V
 -- Table structure for table `setdevice`
 --
 
-CREATE TABLE `tbl_setdevice` (
+CREATE TABLE `setdevice` (
   `dv_id` int(10) NOT NULL,
   `id` int(10) NOT NULL,
   `ev_id` int(11) NOT NULL,
@@ -252,7 +252,7 @@ CREATE TABLE `tbl_setdevice` (
 -- Dumping data for table `setdevice`
 --
 
-INSERT INTO `tbl_setdevice` (`dv_id`, `id`, `ev_id`, `dv_status`) VALUES
+INSERT INTO `setdevice` (`dv_id`, `id`, `ev_id`, `dv_status`) VALUES
 (1, 4, 1, 3),
 (2, 4, 3, 3),
 (4, 4, 6, 3),
@@ -266,8 +266,8 @@ INSERT INTO `tbl_setdevice` (`dv_id`, `id`, `ev_id`, `dv_status`) VALUES
 
 CREATE TABLE `seting` (
   `set_id` int(10) NOT NULL,
-  `id` int(10) NOT NULL  COMMENT '',
-  `to_id` int(11) NOT NULL COMMENT '',
+  `id` int(10) NOT NULL,
+  `ev_id` int(11) NOT NULL,
   `set_status` int(1) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -284,16 +284,16 @@ INSERT INTO `seting` (`set_id`, `id`, `ev_id`, `set_status`) VALUES
 -- Table structure for table `status`
 --
 
-CREATE TABLE `tbl_level` (
-  `lv_id` int(5) NOT NULL,
-  `lv_name` varchar(250) NOT NULL
+CREATE TABLE `status` (
+  `sta_id` int(5) NOT NULL,
+  `sta_name` varchar(250) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `status`
 --
 
-INSERT INTO `tbl_level` (`lv_id`, `lv_name`) VALUES
+INSERT INTO `status` (`sta_id`, `sta_name`) VALUES
 (1, 'admin'),
 (2, 'ผู้ใช้ทั่วไป'),
 (3, 'หัวหน้าตึก/หัวหน้าแผนก');
@@ -304,7 +304,7 @@ INSERT INTO `tbl_level` (`lv_id`, `lv_name`) VALUES
 -- Table structure for table `style`
 --
 
-CREATE TABLE `tbl_style` (
+CREATE TABLE `style` (
   `st_id` int(10) NOT NULL,
   `st_name` varchar(100) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -313,7 +313,7 @@ CREATE TABLE `tbl_style` (
 -- Dumping data for table `style`
 --
 
-INSERT INTO `tbl_style` (`st_id`, `st_name`) VALUES
+INSERT INTO `style` (`st_id`, `st_name`) VALUES
 (1, 'ประชุมทั่วไป'),
 (2, 'ตัวยู เต็มห้อง'),
 (3, 'ชั้นเรียน'),
